@@ -771,7 +771,7 @@ namespace Xamarin.Forms.Controls.Issues
 	[SetUpFixture]
 	public class IssuesSetup
 	{
-		[OneTimeSetUp]
+		[SetUp]
 		public void RunBeforeAnyTests()
 		{
 			AppSetup.RunningApp = AppSetup.Setup(null);
