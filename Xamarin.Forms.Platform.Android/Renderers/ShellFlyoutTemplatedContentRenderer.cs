@@ -1,5 +1,6 @@
 ﻿using Android.Content;
 using Android.Graphics.Drawables;
+using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Util;
@@ -9,7 +10,7 @@ using System;
 using System.ComponentModel;
 using AView = Android.Views.View;
 using LP = Android.Views.ViewGroup.LayoutParams;
-using Android.Graphics;
+using Xamarin.Forms.Internals;
 
 namespace Xamarin.Forms.Platform.Android
 {
@@ -28,9 +29,6 @@ namespace Xamarin.Forms.Platform.Android
 		ViewGroup _rootView;
 		Drawable _defaultBackgroundColor;
 		ImageView _bgImage;
-		AppBarLayout _appBar;
-		RecyclerView _recycler;
-		ShellFlyoutRecyclerAdapter _adapter;
 		View _flyoutHeader;
 		int _actionBarHeight;
 
@@ -43,6 +41,8 @@ namespace Xamarin.Forms.Platform.Android
 
 		protected virtual void LoadView(IShellContext shellContext)
 		{
+			Profile.FrameBegin();
+
 			var context = shellContext.AndroidContext;
 
 			// Android designer can't load fragments or resources from layouts
@@ -54,18 +54,22 @@ namespace Xamarin.Forms.Platform.Android
 
 			var coordinator = LayoutInflater.FromContext(context).Inflate(Resource.Layout.FlyoutContent, null);
 
-			_recycler = coordinator.FindViewById<RecyclerView>(Resource.Id.flyoutcontent_recycler);
+			Profile.FramePartition("Find Recycler");
+			var recycler = coordinator.FindViewById<RecyclerView>(Resource.Id.flyoutcontent_recycler);
 
-			_appBar = coordinator.FindViewById<AppBarLayout>(Resource.Id.flyoutcontent_appbar);
+			Profile.FramePartition("Find AppBar");
+			var appBar = coordinator.FindViewById<AppBarLayout>(Resource.Id.flyoutcontent_appbar);
 
 			_rootView = coordinator as ViewGroup;
 
-			_appBar.AddOnOffsetChangedListener(this);
+			Profile.FramePartition("Add Listener");
+			appBar.AddOnOffsetChangedListener(this);
 
+			Profile.FramePartition("Add HeaderView");
 			_actionBarHeight = (int)context.ToPixels(56);
 
 			_flyoutHeader = ((IShellController)shellContext.Shell).FlyoutHeader;
-			if (_flyoutHeader != null)
+			if(_flyoutHeader != null)
 				_flyoutHeader.MeasureInvalidated += OnFlyoutHeaderMeasureInvalidated;
 
 			_headerView = new HeaderContainer(context, _flyoutHeader)
@@ -77,13 +81,16 @@ namespace Xamarin.Forms.Platform.Android
 			{
 				ScrollFlags = AppBarLayout.LayoutParams.ScrollFlagScroll
 			};
-			_appBar.AddView(_headerView);
+			appBar.AddView(_headerView);
 
-			_adapter = new ShellFlyoutRecyclerAdapter(shellContext, OnElementSelected);
-			_recycler.SetClipToPadding(false);
-			_recycler.SetLayoutManager(new LinearLayoutManager(context, (int)Orientation.Vertical, false));
-			_recycler.SetAdapter(_adapter);
+			Profile.FramePartition("Recycler.SetAdapter");
+			var adapter = new ShellFlyoutRecyclerAdapter(shellContext, OnElementSelected);
+			recycler.SetPadding(0, (int)context.ToPixels(20), 0, 0);
+			recycler.SetClipToPadding(false);
+			recycler.SetLayoutManager(new LinearLayoutManager(context, (int)Orientation.Vertical, false));
+			recycler.SetAdapter(adapter);
 
+			Profile.FramePartition("Initialize BgImage");
 			var metrics = context.Resources.DisplayMetrics;
 			var width = Math.Min(metrics.WidthPixels, metrics.HeightPixels);
 
@@ -104,15 +111,19 @@ namespace Xamarin.Forms.Platform.Android
 				LayoutParameters = new LP(coordinator.LayoutParameters)
 			};
 
+			Profile.FramePartition("UpdateFlyoutHeaderBehavior");
 			UpdateFlyoutHeaderBehavior();
 			_shellContext.Shell.PropertyChanged += OnShellPropertyChanged;
 
+			Profile.FramePartition("UpdateFlyoutBackground");
 			UpdateFlyoutBackground();
+
+			Profile.FrameEnd();
 		}
 
 		void OnFlyoutHeaderMeasureInvalidated(object sender, EventArgs e)
 		{
-			if (_headerView != null)
+			if(_headerView != null)
 				UpdateFlyoutHeaderBehavior();
 		}
 
@@ -182,7 +193,7 @@ namespace Xamarin.Forms.Platform.Android
 
 				if (_rootView.IndexOfChild(_bgImage) == -1)
 				{
-					if (_bgImage.SetElevation(float.MinValue))
+					if(_bgImage.SetElevation(float.MinValue))
 						_rootView.AddView(_bgImage);
 					else
 						_rootView.AddView(_bgImage, 0);
@@ -194,7 +205,10 @@ namespace Xamarin.Forms.Platform.Android
 		{
 			var context = _shellContext.AndroidContext;
 
-			var margin = _flyoutHeader?.Margin ?? default(Thickness);
+			Thickness margin = default(Thickness);
+
+			if (_flyoutHeader != null)
+				margin = _flyoutHeader.Margin;
 
 			var minimumHeight = Convert.ToInt32(_actionBarHeight + context.ToPixels(margin.Top) - context.ToPixels(margin.Bottom));
 			_headerView.SetMinimumHeight(minimumHeight);
@@ -247,46 +261,28 @@ namespace Xamarin.Forms.Platform.Android
 
 		protected override void Dispose(bool disposing)
 		{
-			if (_disposed)
-				return;
-
-			_disposed = true;
-
-			if (disposing)
+			if (!_disposed)
 			{
-				_shellContext.Shell.PropertyChanged -= OnShellPropertyChanged;
-
-				if (_flyoutHeader != null)
-					_flyoutHeader.MeasureInvalidated -= OnFlyoutHeaderMeasureInvalidated;
-
-				if (_appBar != null)
+				if (disposing)
 				{
-					_appBar.RemoveOnOffsetChangedListener(this);
-					_appBar.RemoveView(_headerView);
-				}
+					_shellContext.Shell.PropertyChanged -= OnShellPropertyChanged;
 
-				if (_recycler != null)
-				{
-					_recycler.SetLayoutManager(null);
-					_recycler.SetAdapter(null);
-					_recycler.Dispose();
-				}
+					if (_flyoutHeader != null)
+						_flyoutHeader.MeasureInvalidated += OnFlyoutHeaderMeasureInvalidated;
 
-				_adapter?.Dispose();
-				_headerView.Dispose();
-				_rootView.Dispose();
-				_defaultBackgroundColor?.Dispose();
-				_bgImage?.Dispose();
+					_headerView.Dispose();
+					_rootView.Dispose();
+					_defaultBackgroundColor?.Dispose();
+					_bgImage?.Dispose();
+				}
 
 				_flyoutHeader = null;
+				_defaultBackgroundColor = null;
+				_bgImage = null;
 				_rootView = null;
 				_headerView = null;
 				_shellContext = null;
-				_appBar = null;
-				_recycler = null;
-				_adapter = null;
-				_defaultBackgroundColor = null;
-				_bgImage = null;
+				_disposed = true;
 			}
 
 			base.Dispose(disposing);
@@ -296,6 +292,18 @@ namespace Xamarin.Forms.Platform.Android
 		public class HeaderContainer : ContainerView
 		{
 			public HeaderContainer(Context context, View view) : base(context, view)
+			{
+			}
+
+			public HeaderContainer(Context context, IAttributeSet attribs) : base(context, attribs)
+			{
+			}
+
+			public HeaderContainer(Context context, IAttributeSet attribs, int defStyleAttr) : base(context, attribs, defStyleAttr)
+			{
+			}
+
+			protected HeaderContainer(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
 			{
 			}
 
