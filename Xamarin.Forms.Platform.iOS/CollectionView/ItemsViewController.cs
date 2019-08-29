@@ -241,6 +241,9 @@ namespace Xamarin.Forms.Platform.iOS
 
 		void CellContentSizeChanged(object sender, EventArgs e)
 		{
+			if (_disposed)
+				return;
+
 			Layout?.InvalidateLayout();
 		}
 
@@ -274,7 +277,7 @@ namespace Xamarin.Forms.Platform.iOS
 			return renderer;
 		}
 
-		string DetermineCellReuseId()
+		protected virtual string DetermineCellReuseId()
 		{
 			if (ItemsView.ItemTemplate != null)
 			{
