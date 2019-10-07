@@ -152,7 +152,7 @@ namespace Xamarin.Forms.Platform.Android
 			_tablayout.SetupWithViewPager(_viewPager);
 
 			var currentPage = ((IShellContentController)shellSection.CurrentItem).GetOrCreateContent();
-			var currentIndex = SectionController.IndexOf(ShellSection.CurrentItem);
+			var currentIndex = SectionController.GetItems().IndexOf(ShellSection.CurrentItem);
 
 			_toolbarTracker = _shellContext.CreateTrackerForToolbar(_toolbar);
 			_toolbarTracker.Page = currentPage;
@@ -221,7 +221,7 @@ namespace Xamarin.Forms.Platform.Android
 
 			if (e.PropertyName == ShellSection.CurrentItemProperty.PropertyName)
 			{
-				var newIndex = SectionController.IndexOf(ShellSection.CurrentItem);
+				var newIndex = SectionController.GetItems().IndexOf(ShellSection.CurrentItem);
 
 				if (newIndex >= 0)
 				{

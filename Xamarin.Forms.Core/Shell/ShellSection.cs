@@ -132,10 +132,7 @@ namespace Xamarin.Forms
 			SendUpdateCurrentState(ShellNavigationSource.Pop);
 		}
 
-		IReadOnlyList<ShellContent> IShellSectionController.GetItems() => ((ShellContentCollection)Items).VisibleItems;
-
-		int IShellSectionController.IndexOf(ShellContent content) =>
-			(ShellSectionController.GetItems() as ReadOnlyCollection<ShellContent>).IndexOf(content);
+		ReadOnlyCollection<ShellContent> IShellSectionController.GetItems() => ((ShellContentCollection)Items).VisibleItems;
 
 		event NotifyCollectionChangedEventHandler IShellSectionController.ItemsCollectionChanged
 		{
