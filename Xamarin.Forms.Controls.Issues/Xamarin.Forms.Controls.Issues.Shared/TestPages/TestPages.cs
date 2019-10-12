@@ -602,17 +602,17 @@ namespace Xamarin.Forms.Controls
 #endif
 		}
 
-		public ContentPage AddTopTab(string title)
+		public ContentPage AddTopTab(string title, string icon = null)
 		{
 			var page = new ContentPage();
-			AddTopTab(page, title);
+			AddTopTab(page, title, icon);
 			return page;
 		}
 
 
-		public void AddTopTab(ContentPage page, string title = null)
+		public void AddTopTab(ContentPage page, string title = null, string icon = null)
 		{
-			if(Items.Count == 0)
+			if (Items.Count == 0)
 			{
 				var item = AddContentPage(page);
 				item.Items[0].Items[0].Title = title ?? page.Title;
@@ -622,25 +622,29 @@ namespace Xamarin.Forms.Controls
 			Items[0].Items[0].Items.Add(new ShellContent()
 			{
 				Title = title ?? page.Title,
-				Content = page
+				Content = page,
+				Icon = icon
 			});
 		}
 
-		public ContentPage AddBottomTab(string title)
+		public ContentPage AddBottomTab(string title, string icon = null, ContentPage contentPage = null)
 		{
-
-			ContentPage page = new ContentPage();
+			var page = contentPage ?? new ContentPage();
 			Items[0].Items.Add(new ShellSection()
 			{
+				AutomationId = title,
+				Route = title,
+				Title = title,
+				Icon = icon,
 				Items =
 				{
 					new ShellContent()
 					{
-						Content = page,
-						Title = title
+						Content = page
 					}
 				}
 			});
+
 			return page;
 		}
 
@@ -670,7 +674,7 @@ namespace Xamarin.Forms.Controls
 			return item;
 		}
 
-		public ContentPage CreateContentPage(string shellItemTitle = null) 
+		public ContentPage CreateContentPage(string shellItemTitle = null)
 			=> CreateContentPage<ShellItem, ShellSection>(shellItemTitle);
 
 		public ContentPage CreateContentPage<TShellItem, TShellSection>(string shellItemTitle = null)
