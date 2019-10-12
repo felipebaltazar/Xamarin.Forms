@@ -42,13 +42,13 @@ namespace Xamarin.Forms.Platform.Android
 			var unselectedColor = controller.EffectiveTabBarUnselectedColor;
 			var titleColor = controller.EffectiveTabBarTitleColor;
 
-
 			if (_defaultList == null)
 			{
 #if __ANDROID_28__
-				_defaultList = bottomView.ItemTextColor ?? MakeColorStateList(titleColor.ToAndroid().ToArgb(), disabledColor.ToAndroid().ToArgb(), unselectedColor.ToAndroid().ToArgb());
+				_defaultList = bottomView.ItemTextColor ?? bottomView.ItemIconTintList
+					?? MakeColorStateList(titleColor.ToAndroid().ToArgb(), disabledColor.ToAndroid().ToArgb(), unselectedColor.ToAndroid().ToArgb());
 #else
-				_defaultList = bottomView.ItemTextColor;
+				_defaultList = bottomView.ItemTextColor ?? bottomView.ItemIconTintList;
 #endif
 			}
 
@@ -149,6 +149,6 @@ namespace Xamarin.Forms.Platform.Android
 			}
 		}
 
-#endregion IDisposable
+		#endregion IDisposable
 	}
 }
