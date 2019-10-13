@@ -6,6 +6,7 @@ using Xamarin.UITest.Queries;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Xamarin.Forms.Controls.Issues;
+using System.Globalization;
 #if __IOS__
 using Xamarin.UITest.iOS;
 #endif
@@ -42,6 +43,9 @@ namespace Xamarin.UITest
 
 			return true;
 		}
+
+		public static float GetScreenDensity(this IApp app, string apiLabelId = "DensityLabel") =>
+			Convert.ToSingle(app.WaitForElement(apiLabelId)[0].ReadText().Replace(",","."));
 
 #if __IOS__
 		public static void SendAppToBackground(this IApp app, TimeSpan timeSpan)
