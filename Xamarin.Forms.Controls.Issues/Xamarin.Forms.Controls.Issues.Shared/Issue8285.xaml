@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<controls:TestShell xmlns:controls="clr-namespace:Xamarin.Forms.Controls"
+                    xmlns="http://xamarin.com/schemas/2014/forms"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    mc:Ignorable="d"
+                    x:Class="Xamarin.Forms.Controls.Issues.Issue8285">
+    <controls:TestShell.Resources>
+        <ResourceDictionary>
+            <Color x:Key="BlackColor42">#424242</Color>
+            <Color x:Key="ThemeColor">#4674b9</Color>
+            <Color x:Key="GrayColor">Gray</Color>
+            <Color x:Key="BgColor">#F0F0F0</Color>
+            <Color x:Key="WhiteColor">#FFFFFF</Color>
+            <Color x:Key="ColorPrimary">#213244</Color>
+            <Style x:Key="BaseStyle" TargetType="Element">
+                <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource BgColor}" />
+                <Setter Property="Shell.TabBarForegroundColor" Value="{StaticResource ThemeColor}" />
+                <Setter Property="Shell.TabBarUnselectedColor" Value="{StaticResource GrayColor}" />
+                <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource ThemeColor}" />
+                <Setter Property="Shell.TitleColor" Value="{StaticResource WhiteColor}" />
+                <Setter Property="Shell.ForegroundColor" Value="{StaticResource WhiteColor}" />
+                <Setter Property="Shell.BackgroundColor" Value="{StaticResource ColorPrimary}" />
+            </Style>
+            <Style BasedOn="{StaticResource BaseStyle}" TargetType="FlyoutItem" />
+        </ResourceDictionary>
+    </controls:TestShell.Resources>
+
+    <!--  Define a aparência de FlyoutItem  -->
+    <controls:TestShell.ItemTemplate>
+        <DataTemplate>
+            <Grid>
+                <StackLayout Margin="0,20,0,0" HorizontalOptions="FillAndExpand"
+                             Orientation="Horizontal" VerticalOptions="Center">
+                    
+                    <Image Margin="{OnPlatform Android='20,0,20,0', iOS='20,20,20,10'}"
+                           HeightRequest="22" HorizontalOptions="Start" Source="{Binding FlyoutIcon}"
+                           VerticalOptions="Center" WidthRequest="22" />
+                    
+                    <Label Margin="{OnPlatform Android='0,2,0,0', iOS='0,10,0,0'}"
+                           FontSize="Small" HorizontalOptions="FillAndExpand"
+                           Text="{Binding Title}" TextColor="{StaticResource BlackColor42}"
+                           VerticalOptions="Center" />
+                </StackLayout>
+            </Grid>
+        </DataTemplate>
+    </controls:TestShell.ItemTemplate>
+
+    <controls:TestShell.MenuItemTemplate>
+        <DataTemplate>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                
+                <BoxView Grid.Row="0" Margin="0,20,0,0" BackgroundColor="#eeeeee"
+                         HeightRequest="1" HorizontalOptions="FillAndExpand"
+                         IsVisible="{OnPlatform Android='True', iOS='False'}" />
+                
+                <StackLayout Grid.Row="1" Orientation="Horizontal">
+                    <Image Margin="20,10,20,10" HeightRequest="22"
+                           HorizontalOptions="Start"
+                           Source="{Binding Icon}" WidthRequest="22" />
+                    
+                    <Label FontSize="Small" Text="{Binding Title}"
+                           TextColor="{StaticResource BlackColor42}"
+                           VerticalOptions="Center" />
+                </StackLayout>
+            </Grid>
+        </DataTemplate>
+    </controls:TestShell.MenuItemTemplate>
+
+    <FlyoutItem Title="Qr Code" FlyoutIcon="ic_qrcode.png">
+        <ShellContent Title="QR Code" >
+            <ContentPage Title="QR Code">
+                <ScrollView>
+                    <StackLayout>
+                        <Label Text="QR Code page" />
+                    </StackLayout>
+                </ScrollView>
+            </ContentPage>
+        </ShellContent>
+    </FlyoutItem>
+    
+    <FlyoutItem Title="Grid" FlyoutIcon="grid.png">
+        <ShellContent Title="Grid" >
+            <ContentPage Title="Grid">
+                <ScrollView>
+                    <StackLayout>
+                        <Label Text="Grid page" />
+                    </StackLayout>
+                </ScrollView>
+            </ContentPage>
+        </ShellContent>
+    </FlyoutItem>
+    
+    <FlyoutItem Title="Books" FlyoutIcon="booksflyout.png">
+        <ShellContent Title="Books" >
+            <ContentPage Title="Books">
+                <ScrollView>
+                    <StackLayout>
+                        <Label Text="Books page" />
+                    </StackLayout>
+                </ScrollView>
+            </ContentPage>
+        </ShellContent>
+    </FlyoutItem>
+
+    <MenuItem IconImageSource="home.png" Text="home" />
+</controls:TestShell>
